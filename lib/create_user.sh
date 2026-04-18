@@ -1,9 +1,3 @@
-# --------------------
-# --- dependencies ---
-# --------------------
-#
-source "$(dirname "${BASH_SOURCE[0]}")/log.sh"
-
 # ---------------------------------
 # --- function to create a user ---
 # ---------------------------------
@@ -25,6 +19,7 @@ create_user() {
 	else
 
 		useradd -m -s /bin/bash "$user"
+		USER_CREATED=1
 		log_success "user '$user' created"
 
 	fi

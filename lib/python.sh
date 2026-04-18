@@ -1,10 +1,3 @@
-# --------------------
-# --- dependencies ---
-# --------------------
-source "$(dirname "${BASH_SOURCE[0]}")/log.sh"
-
-source "$(dirname "${BASH_SOURCE[0]}")/pkg_manager.sh"
-
 # ----------------------------------
 # --- function to install python ---
 # ----------------------------------

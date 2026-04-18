@@ -17,17 +17,18 @@ set +H
 NO_BANNER=${NO_BANNER:-false}
 
 # directory containing library scripts
-LIB_DIR="$(dirname "$0")/lib"
+LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/lib" && pwd)"
 
-# debug mode
+# flags
 DEBUG=0
+FORCE=0
 
 # ------------------
 # --- variables ----
 # ------------------
 
-USER="$1"
-KEY="$2"
+USER="ansible"
+KEY=""
 
 # ---------------------
 # --- library files ---
@@ -48,9 +49,6 @@ source "$LIB_DIR"/sudo.sh
 # shellcheck source=lib/ssh.sh
 source "$LIB_DIR"/ssh.sh
 
-# shellcheck source=lib/pause.sh
-source "$LIB_DIR"/pause.sh
-
 # shellcheck source=lib/checks.sh
 source "$LIB_DIR"/checks.sh
 
@@ -67,41 +65,79 @@ if [ "$NO_BANNER" != "true" ]; then
 
 fi
 
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+	--user)
+		USER="$2"
+		shift 2
+		;;
+	--key)
+		KEY="$2"
+		shift 2
+		;;
+	--debug)
+		DEBUG=1
+		shift 1
+		;;
+	--force)
+		FORCE=1
+		shift 1
+		;;
+	*)
+		log_failure "unknown argument: $1"
+		exit 1
+		;;
+	esac
+done
+
+if [ -z "$KEY" ]; then
+	log_failure "error: --key is required"
+	exit 1
+fi
+
+printf "%s" "$KEY" | grep -q "^ssh-" || {
+	log_failure "invalid ssh key format"
+	exit 1
+}
+
 if ! command -v sudo >/dev/null 2>&1; then
 	log_failure "sudo is not installed"
 	exit 1
 fi
 
 if [ "$EUID" -ne 0 ]; then
+
 	log_failure "must be run as root"
 	exit 1
+
+fi
+
+if [ ! -d "$LIB_DIR" ]; then
+
+	log_failure "lib directory not found"
+	exit 1
+
 fi
 
 # normalization
-KEY="$(echo "$2" | tr -d '\r')"
+KEY="$(echo "$KEY" | tr -d '\r')"
+log_debug "ssh key got normalized"
 
 log_success "running as root"
-pause $DEBUG
 
-create_user "$USER"
-pause $DEBUG
+create_user "$USER" || fail "user creation failed"
 
-setup_sudoer "$USER"
-pause $DEBUG
+setup_sudoer "$USER" || fail "sudo setup failed"
 
-verify_sudoer "$USER"
-pause $DEBUG
+verify_sudoer "$USER" || fail "sudo verification failed"
 
-setup_ssh "$USER" "$KEY"
-pause $DEBUG
+setup_ssh "$USER" "$KEY" || fail "ssh setup failed"
 
-verify_ssh "$USER" "$KEY"
-pause $DEBUG
+verify_ssh "$USER" "$KEY" || fail "ssh verification failed"
 
 if ! check_python; then
 
 	install_python
-	pause $DEBUG
 
 fi
 

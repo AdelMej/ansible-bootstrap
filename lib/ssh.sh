@@ -1,10 +1,3 @@
-# --------------------
-# --- dependencies ---
-# --------------------
-source "$(dirname "${BASH_SOURCE[0]}")/log.sh"
-
-source "$(dirname "${BASH_SOURCE[0]}")/checks.sh"
-
 # ------------------------------------
 # --- function to setup an ssh key ---
 # ------------------------------------
@@ -16,6 +9,13 @@ setup_ssh() {
 	local home="/home/$user"
 	local ssh_dir="$home/.ssh"
 	local auth_keys="$ssh_dir/authorized_keys"
+
+	log_debug "user is '$user'"
+	log_debug "key length is '${#key}'"
+
+	log_debug "home is '$home'"
+	log_debug "ssh directory is '$ssh_dir'"
+	log_debug "authorized_keys directory is '$auth_keys'"
 
 	if [ -z "$user" ] || [ -z "$key" ]; then
 
@@ -45,7 +45,7 @@ setup_ssh() {
 
 	if [ -f "$auth_keys" ] && grep -Fxq "$key" "$auth_keys"; then
 
-		log_warn "key already exist"
+		log_warn "key already exists"
 
 	else
 
@@ -53,6 +53,8 @@ setup_ssh() {
 			log_failure "failed to write authorized_keys"
 			return 1
 		}
+
+		SSH_CONFIGURE=1
 
 	fi
 

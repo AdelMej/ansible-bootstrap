@@ -1,17 +1,11 @@
-# --------------------
-# --- dependencies ---
-# --------------------
-
-source "$(dirname "${BASH_SOURCE[0]}")/log.sh"
-
-source "$(dirname "${BASH_SOURCE[0]}")/checks.sh"
-
 # --------------------------------------------------
 # --- script for setting up ansible sudoer files ---
 # --------------------------------------------------
 
 setup_sudoer() {
 	local user="$1"
+
+	log_debug "user is '$user'"
 
 	if [ -z "$user" ]; then
 		log_failure "user cannot be empty"
@@ -23,7 +17,13 @@ setup_sudoer() {
 	if [ -f "$file" ]; then
 		log_warn "sudoers file already exists: $file"
 
-		read -rp "[?] overwrite? (y/n): " confirm
+		if [ "$FORCE" -eq 0 ]; then
+			read -rp "[?] overwrite? (y/n): " confirm
+		else
+
+			confirm="y"
+
+		fi
 
 		if [ "$confirm" != "y" ]; then
 			log_info "skipping sudo setup"
@@ -32,12 +32,13 @@ setup_sudoer() {
 	fi
 
 	log_info "creating sudoers file"
-	sleep 0.2
 
 	echo "$user ALL=(ALL) NOPASSWD:ALL" >"$file" || {
 		log_failure "failed to write sudoers file"
 		return 1
 	}
+
+	SUDOER_CREATED=1
 
 	log_info "setting permissions"
 
@@ -64,6 +65,9 @@ setup_sudoer() {
 verify_sudoer() {
 	local user="$1"
 	local file="/etc/sudoers.d/$user"
+
+	log_debug "user is '$user'"
+	log_debug "file is '$file'"
 
 	log_info "sudoers verification start"
 

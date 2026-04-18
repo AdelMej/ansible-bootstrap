@@ -1,8 +1,3 @@
-# --------------------
-# --- dependencies ---
-# --------------------
-source "$(dirname "${BASH_SOURCE[0]}")/log.sh"
-
 # ----------------------------------------
 # --- functions for checking ownership ---
 # ----------------------------------------
@@ -13,12 +8,17 @@ check_owner() {
 
 	local actual
 
+	log_debug "path is '$path'"
+	log_debug "expected is '$expected'"
+
 	actual="$(stat -c '%U:%G' "$path" 2>/dev/null)" || {
 
 		log_failure "cannot stat $path"
 		return 1
 
 	}
+
+	log_debug "actual is '$actual'"
 
 	if [ "$actual" != "$expected" ]; then
 
@@ -39,12 +39,18 @@ check_permission() {
 	local expected="$2"
 
 	local actual
+
+	log_debug "path is '$path'"
+	log_debug "expected is '$expected'"
+
 	actual="$(stat -c '%a' "$path" 2>/dev/null)" || {
 
 		log_failure "cannot stat $path"
 		return 1
 
 	}
+
+	log_debug "actual is '$actual'"
 
 	if [ "$actual" != "$expected" ]; then
 
@@ -63,6 +69,8 @@ check_permission() {
 check_file() {
 	local path="$1"
 
+	log_debug "path is '$path'"
+
 	if [ ! -f "$path" ]; then
 
 		log_failure "$path does not exist"
@@ -80,6 +88,8 @@ check_file() {
 check_dir() {
 	local path="$1"
 
+	log_debug "path is '$path'"
+
 	if [ ! -d "$path" ]; then
 
 		log_failure "$path is not a directory"
@@ -95,6 +105,7 @@ check_dir() {
 # ------------------------------------------------
 
 check_python() {
+
 	if command -v python3 >/dev/null 2>&1; then
 		log_success "python3 is installed"
 		return 0
