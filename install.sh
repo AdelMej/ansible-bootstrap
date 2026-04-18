@@ -11,8 +11,6 @@ cleanup() {
 
 trap cleanup EXIT
 
-echo "[install] args: $@"
-
 echo "[install] cloning repo..."
 rm -rf "$INSTALL_DIR"
 git clone "$REPO_URL" "$INSTALL_DIR"
