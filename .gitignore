@@ -1,0 +1,45 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python (Ansible deps later)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+
+# Ansible
+*.retry
+
+# Logs
+*.log
+
+# SSH / sensitive stuff
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Env files
+.env
+.env.*
+
+# Temporary files
+tmp/
+temp/
+
+# Testing artifacts
+*.box
+*.qcow2
+*.img
