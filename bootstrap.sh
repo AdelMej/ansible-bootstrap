@@ -68,7 +68,7 @@ if [ "$NO_BANNER" != "true" ]; then
 
 fi
 
-parse_argument "$@"
+parse_arguments "$@"
 
 if [ -z "$KEY" ]; then
 	log_failure "error: --key is required"
