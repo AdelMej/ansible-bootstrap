@@ -55,6 +55,9 @@ source "$LIB_DIR"/checks.sh
 # shellcheck source=lib/python.sh
 source "$LIB_DIR"/python.sh
 
+# shellcheck source=lib/parser.sh
+source "$LIB_DIR/parser.sh"
+
 # -----------------
 # --- bootstrap ---
 # -----------------
@@ -65,30 +68,7 @@ if [ "$NO_BANNER" != "true" ]; then
 
 fi
 
-while [ "$#" -gt 0 ]; do
-	case "$1" in
-	--user)
-		USER="$2"
-		shift 2
-		;;
-	--key)
-		KEY="$2"
-		shift 2
-		;;
-	--debug)
-		DEBUG=1
-		shift 1
-		;;
-	--force)
-		FORCE=1
-		shift 1
-		;;
-	*)
-		log_failure "unknown argument: $1"
-		exit 1
-		;;
-	esac
-done
+parse_argument "$@"
 
 if [ -z "$KEY" ]; then
 	log_failure "error: --key is required"
